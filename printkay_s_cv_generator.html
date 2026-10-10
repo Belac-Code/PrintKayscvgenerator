@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrintKay's CV Generator & Builder</title>
+    <!-- Tailwind CSS for modern responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2canvas and jsPDF for downloading -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        @media print {
+            body * { visibility: hidden; }
+            #printable-cv, #printable-cv * { visibility: visible; }
+            #printable-cv { position: absolute; left: 0; top: 0; width: 100%; margin: 0; box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 text-white p-2.5 rounded-xl font-bold tracking-wider shadow-inner flex items-center justify-center">
+                    <i class="fa-solid fa-file-lines text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">PrintKay’s CV Generator</h1>
+                    <p class="text-xs text-slate-400">Professional CV Builder & Template Engine ™</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="loadDemoData()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium px-3 py-2 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> Load Demo (Matthew Lilian)
+                </button>
+                <button onclick="downloadPDF()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-pdf"></i> Download PDF
+                </button>
+                <button onclick="downloadImage()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-image"></i> Download JPEG
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 w-full flex-grow">
+        
+        <!-- FORM BUILDER SECTION -->
+        <section class="lg:col-span-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col h-[calc(100vh-140px)] sticky top-24 overflow-hidden">
+            <div class="flex justify-between items-center pb-4 mb-4 border-b border-slate-100">
+                <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-blue-600"></i> CV Details Editor
+                </h2>
+                <span class="text-xs bg-blue-50 text-blue-700 font-semibold px-2.5 py-1 rounded-full">Live Synchronized</span>
+            </div>
+
+            <!-- Scrollable Form Container -->
+            <div id="form-container" class="overflow-y-auto pr-2 space-y-6 flex-grow custom-scrollbar">
+                
+                <!-- Personal Info -->
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">1. Personal & Contact Information</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Full Name</label>
+                            <input type="text" id="fullName" value="MATTHEW LILIAN" oninput="updatePreview()" class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Email Address</label>
+                            <input type="email" id="email" value="lilianmatthew104@gmail.com" oninput="updatePreview()" class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Phone Number</label>
+                            <input type="text" id="phone" value="+1 (820) 380-0691" oninput="updatePreview()" class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Address / Location</label>
+                            <input type="text" id="address" value="55 sycamore ST Massachusetts, Brockton, 02301, US" oninput="updatePreview()" class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">2. Professional Summary</h3>
+                    <textarea id="summary" rows="4" oninput="updatePreview()" class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">Motivated and detail-oriented professional with a National Diploma in Business Administration and certified computer skills. Proven experience in sales, customer service, and teaching, with a strong track record in communication, inventory management, and customer relationship building. Passionate about contributing to organizational success through team collaboration and efficient service delivery.</textarea>
+                </div>
+
+                <!-- Skills -->
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">3. Skills (Comma separated)</h3>
+                    <input type="text" id="skillsInput" value="Customer Service & Relationship Management, Sales & Inventory Management, Contract Negotiation, Microsoft Word & Excel, Corel DRAW, Public Speaking, Administrative Support, Communication & Teamwork" oninput="updatePreview()" class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+
+                <!-- Experience Dynamic List -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">4. Work Experience</h3>
+                        <button onclick="addExperience()" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium px-2.5 py-1 rounded transition">+ Add Role</button>
+                    </div>
+                    <div id="experienceList" class="space-y-4">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Education Dynamic List -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">5. Education & Certificates</h3>
+                        <button onclick="addEducation()" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium px-2.5 py-1 rounded transition">+ Add Education</button>
+                    </div>
+                    <div id="educationList" class="space-y-4">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Personal Data Grid -->
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">6. Personal Data & Attributes</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="block text-xs font-medium text-slate-600 mb-1">Nationality</label><input type="text" id="p_nationality" value="NIGERIAN" oninput="updatePreview()" class="w-full px-3 py-2 text-sm border rounded-lg"></div>
+                        <div><label class="block text-xs font-medium text-slate-600 mb-1">State of Origin</label><input type="text" id="p_state" value="RIVERS STATE" oninput="updatePreview()" class="w-full px-3 py-2 text-sm border rounded-lg"></div>
+                        <div><label class="block text-xs font-medium text-slate-600 mb-1">L.G.A.</label><input type="text" id="p_lga" value="PORT HARCOURT" oninput="updatePreview()" class="w-full px-3 py-2 text-sm border rounded-lg"></div>
+                        <div><label class="block text-xs font-medium text-slate-600 mb-1">Sex</label><input type="text" id="p_sex" value="FEMALE" oninput="updatePreview()" class="w-full px-3 py-2 text-sm border rounded-lg"></div>
+                        <div><label class="block text-xs font-medium text-slate-600 mb-1">D.O.B.</label><input type="text" id="p_dob" value="16™ DEC. 2002" oninput="updatePreview()" class="w-full px-3 py-2 text-sm border rounded-lg"></div>
+                        <div><label class="block text-xs font-medium text-slate-600 mb-1">Religion</label><input type="text" id="p_religion" value="CHRISTIANITY" oninput="updatePreview()" class="w-full px-3 py-2 text-sm border rounded-lg"></div>
+                        <div><label class="block text-xs font-medium text-slate-600 mb-1">Blood Group</label><input type="text" id="p_blood" value="O+" oninput="updatePreview()" class="w-full px-3 py-2 text-sm border rounded-lg"></div>
+                        <div><label class="block text-xs font-medium text-slate-600 mb-1">Genotype</label><input type="text" id="p_genotype" value="AA" oninput="updatePreview()" class="w-full px-3 py-2 text-sm border rounded-lg"></div>
+                        <div class="col-span-2"><label class="block text-xs font-medium text-slate-600 mb-1">Deformity</label><input type="text" id="p_deformity" value="NONE" oninput="updatePreview()" class="w-full px-3 py-2 text-sm border rounded-lg"></div>
+                    </div>
+                </div>
+
+                <!-- Languages & Hobbies -->
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">7. Languages & Hobbies</h3>
+                    <div><label class="block text-xs font-medium text-slate-600 mb-1">Languages (Format: Lang - Level, comma separated)</label><input type="text" id="languages" value="ENGLISH - Advanced, PIDGIN ENGLISH - Advanced" oninput="updatePreview()" class="w-full px-3 py-2 text-sm border rounded-lg"></div>
+                    <div><label class="block text-xs font-medium text-slate-600 mb-1">Hobbies (Comma separated)</label><input type="text" id="hobbies" value="Reading, Learning new skills, Watching Movie, Traveling, Writing" oninput="updatePreview()" class="w-full px-3 py-2 text-sm border rounded-lg"></div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- LIVE PREVIEW SECTION -->
+        <section class="lg:col-span-6 flex flex-col items-center">
+            <div class="w-full flex justify-between items-center mb-3">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Live CV Preview</span>
+                <span class="text-xs text-slate-400">PrintKay's Engine v1.0</span>
+            </div>
+
+            <!-- Printable CV Card matching template styling -->
+            <div class="w-full bg-white shadow-xl rounded-xl border border-slate-300 overflow-hidden relative">
+                <div id="printable-cv" class="p-8 bg-white text-slate-900 text-[11px] leading-relaxed font-sans" style="width: 100%; min-height: 1056px;">
+                    
+                    <!-- Header -->
+                    <div class="text-center pb-3 border-b-2 border-slate-900 mb-4">
+                        <h2 id="prev-name" class="text-2xl font-black tracking-widest uppercase mb-1">MATTHEW LILIAN</h2>
+                        <div class="flex flex-wrap justify-center items-center gap-4 text-xs font-medium text-slate-700">
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-envelope text-blue-600"></i> <span id="prev-email">lilianmatthew104@gmail.com</span></span>
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-phone text-blue-600"></i> <span id="prev-phone">+1 (820) 380-0691</span></span>
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-blue-600"></i> <span id="prev-address">55 sycamore ST Massachusetts, Brockton, 02301, US</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Two Column Layout matching template -->
+                    <div class="grid grid-cols-12 gap-6">
+                        
+                        <!-- Left Column -->
+                        <div class="col-span-6 space-y-4">
+                            
+                            <!-- Summary -->
+                            <div>
+                                <h3 class="font-bold text-xs uppercase border-b border-slate-900 pb-0.5 mb-1.5 tracking-wide">SUMMARY</h3>
+                                <p id="prev-summary" class="text-justify text-slate-700 leading-tight">Motivated and detail-oriented professional with a National Diploma in Business Administration and certified computer skills...</p>
+                            </div>
+
+                            <!-- Skills -->
+                            <div>
+                                <h3 class="font-bold text-xs uppercase border-b border-slate-900 pb-0.5 mb-1.5 tracking-wide">SKILLS</h3>
+                                <ul id="prev-skills" class="space-y-1 text-slate-700">
+                                    <!-- Populated by JS -->
+                                </ul>
+                            </div>
+
+                            <!-- Experience -->
+                            <div>
+                                <h3 class="font-bold text-xs uppercase border-b border-slate-900 pb-0.5 mb-2 tracking-wide">EXPERIENCE</h3>
+                                <div id="prev-experience" class="space-y-3">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="col-span-6 space-y-4">
+                            
+                            <!-- Education -->
+                            <div>
+                                <h3 class="font-bold text-xs uppercase border-b border-slate-900 pb-0.5 mb-2 tracking-wide">EDUCATION & CERTIFICATES</h3>
+                                <div id="prev-education" class="space-y-3">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Personal Data -->
+                            <div>
+                                <h3 class="font-bold text-xs uppercase border-b border-slate-900 pb-0.5 mb-1.5 tracking-wide">PERSONAL DATA</h3>
+                                <div id="prev-personal" class="grid grid-cols-2 gap-x-2 gap-y-1 text-[10.5px] font-medium text-slate-800">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Languages -->
+                            <div>
+                                <h3 class="font-bold text-xs uppercase border-b border-slate-900 pb-0.5 mb-1 tracking-wide">LANGUAGES</h3>
+                                <div id="prev-languages" class="space-y-1 text-slate-800">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Hobbies -->
+                            <div>
+                                <h3 class="font-bold text-xs uppercase border-b border-slate-900 pb-0.5 mb-1 tracking-wide">HOBBIES</h3>
+                                <p id="prev-hobbies" class="text-slate-800 leading-snug">Reading, Learning new skills, Watching Movie, Traveling, Writing</p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Trademark Footer -->
+                    <div class="mt-8 pt-3 border-t border-slate-200 text-center text-[10px] text-slate-400 font-medium">
+                        Generated securely with <span class="text-blue-600 font-bold">PrintKay’s™ CV Builder</span> • All Rights Reserved
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Default demo dataset matching Matthew Lilian template
+        let experiences = [
+            {
+                company: "MUTIPRO COMPANY (YAMAHZ'S INTEGRATED)",
+                role: "Field Executive — Port Harcourt, 2025",
+                bullets: "Client relationship Management\nIdentifying new opportunities and closing sales\nMarket research & product promotion\nReporting and feedback to management"
+            },
+            {
+                company: "IHATEIRONING",
+                role: "Remote Customer Care Representative — United Kingdom, 2023-2024",
+                bullets: "Handled customer inquiries and service requests remotely\nResolved complaints through email, chat and calls\nEnsured high customer satisfaction"
+            },
+            {
+                company: "NUTRITION GROUP PLC",
+                role: "Remote Customer Care Representative — United Kingdom, 2022-2023",
+                bullets: "Responded to customer questions and product concerns\nManaged orders, tracked deliveries and handled account updates\nSupported customers to enhance product satisfaction"
+            },
+            {
+                company: "PORT HARCOURT ELECTRICITY DISTRIBUTION COMPANY (PHED)",
+                role: "Industrial Trainee — Port Harcourt, 2022",
+                bullets: "Developed strong customer service and negotiation skills\nHandled customer complaints and billing issues\nRecovered outstanding electricity bills\nProvided solutions to avoid recurring issues"
+            },
+            {
+                company: "TAMDOR STORES",
+                role: "Sales Representative — Rivers State, 2021",
+                bullets: "Closed sales deals and maintained customer satisfaction\nMentored and trained new sales representatives\nManaged product availability and stock updates\nCreated a positive and productive classroom environment"
+            }
+        ];
+
+        let educations = [
+            {
+                title: "National Higher Diploma in Business Administration and Management",
+                school: "Kenule Benson-Wiwa Polytechnic, Bori",
+                date: "2024"
+            },
+            {
+                title: "National Diploma(ND) in Business Administration and Management",
+                school: "Kenule Benson-Wiwa Polytechnic, Bori",
+                date: "2021"
+            },
+            {
+                title: "Diploma in Computer",
+                school: "CEJ Net Computer Limited",
+                date: ""
+            },
+            {
+                title: "WSSCE Certificate (WAEC)",
+                school: "Pabod Model Secondary School",
+                date: "2019"
+            },
+            {
+                title: "FSLC",
+                school: "Family Support Nursery and Primary School",
+                date: "2014"
+            }
+        ];
+
+        // Render dynamic forms on load
+        window.onload = function() {
+            renderExperienceForm();
+            renderEducationForm();
+            updatePreview();
+        };
+
+        function renderExperienceForm() {
+            const container = document.getElementById('experienceList');
+            container.innerHTML = '';
+            experiences.forEach((exp, index) => {
+                container.innerHTML += `
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2 relative">
+                        <button onclick="removeExperience(${index})" class="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600">Company Name</label>
+                            <input type="text" value="${exp.company}" oninput="experiences[${index}].company = this.value; updatePreview()" class="w-full px-2.5 py-1 text-xs border rounded bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600">Role & Location / Date</label>
+                            <input type="text" value="${exp.role}" oninput="experiences[${index}].role = this.value; updatePreview()" class="w-full px-2.5 py-1 text-xs border rounded bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600">Bullet Points (one per line)</label>
+                            <textarea rows="2" oninput="experiences[${index}].bullets = this.value; updatePreview()" class="w-full px-2.5 py-1 text-xs border rounded bg-white">${exp.bullets}</textarea>
+                        </div>
+                    </div>
+                `;
+            });
+            updatePreview();
+        }
+
+        function addExperience() {
+            experiences.push({ company: "NEW COMPANY", role: "Role — Location, Year", bullet: "Achievement 1\nAchievement 2" });
+            renderExperienceForm();
+        }
+
+        function removeExperience(index) {
+            experiences.splice(index, 1);
+            renderExperienceForm();
+        }
+
+        function renderEducationForm() {
+            const container = document.getElementById('educationList');
+            container.innerHTML = '';
+            educations.forEach((edu, index) => {
+                container.innerHTML += `
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2 relative">
+                        <button onclick="removeEducation(${index})" class="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600">Certificate / Degree Title</label>
+                            <input type="text" value="${edu.title}" oninput="educations[${index}].title = this.value; updatePreview()" class="w-full px-2.5 py-1 text-xs border rounded bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600">Institution</label>
+                            <input type="text" value="${edu.school}" oninput="educations[${index}].school = this.value; updatePreview()" class="w-full px-2.5 py-1 text-xs border rounded bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600">Date</label>
+                            <input type="text" value="${edu.date}" oninput="educations[${index}].date = this.value; updatePreview()" class="w-full px-2.5 py-1 text-xs border rounded bg-white">
+                        </div>
+                    </div>
+                `;
+            });
+            updatePreview();
+        }
+
+        function addEducation() {
+            educations.push({ title: "Degree Name", school: "Institution Name", date: "2026" });
+            renderEducationForm();
+        }
+
+        function removeEducation(index) {
+            educations.splice(index, 1);
+            renderEducationForm();
+        }
+
+        function updatePreview() {
+            // Personal & Contact
+            document.getElementById('prev-name').innerText = document.getElementById('fullName').value;
+            document.getElementById('prev-email').innerText = document.getElementById('email').value;
+            document.getElementById('prev-phone').innerText = document.getElementById('phone').value;
+            document.getElementById('prev-address').innerText = document.getElementById('address').value;
+            document.getElementById('prev-summary').innerText = document.getElementById('summary').value;
+
+            // Skills
+            const skillsVal = document.getElementById('skillsInput').value;
+            const skillsList = skillsVal.split(',').map(s => s.trim()).filter(s => s.length > 0);
+            let skillsHTML = '';
+            skillsList.forEach(skill => {
+                skillsHTML += `<li class="flex items-start gap-1.5"><span class="text-blue-600 mt-0.5">➢</span> <span>${skill}</span></li>`;
+            });
+            document.getElementById('prev-skills').innerHTML = skillsHTML;
+
+            // Experience
+            let expHTML = '';
+            experiences.forEach(exp => {
+                let bulletsArr = exp.bullets.split('\n').map(b => b.trim()).filter(b => b.length > 0);
+                let bulletsHTML = '';
+                bulletsArr.forEach(b => {
+                    bulletsHTML += `<li class="flex items-start gap-1.5"><span class="text-slate-600 mt-0.5">➢</span> <span>${b}</span></li>`;
+                });
+                expHTML += `
+                    <div>
+                        <p class="font-bold text-slate-900">${exp.company}</p>
+                        <p class="font-semibold text-slate-700 italic">${exp.role}</p>
+                        <ul class="mt-1 space-y-0.5 text-slate-700">${bulletsHTML}</ul>
+                    </div>
+                `;
+            });
+            document.getElementById('prev-experience').innerHTML = expHTML;
+
+            // Education
+            let eduHTML = '';
+            educations.forEach(edu => {
+                eduHTML += `
+                    <div class="flex items-start gap-1.5">
+                        <span class="text-blue-600 mt-0.5">➢</span>
+                        <div>
+                            <p class="font-bold text-slate-900">${edu.title}</p>
+                            <p class="text-slate-700">${edu.school}</p>
+                            ${edu.date ? `<p class="text-slate-500 font-medium">Date: ${edu.date}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('prev-education').innerHTML = eduHTML;
+
+            // Personal Data
+            const personalFields = [
+                { label: "NATIONALITY", val: document.getElementById('p_nationality').value },
+                { label: "STATE OF ORIGIN", val: document.getElementById('p_state').value },
+                { label: "L.G.A.", val: document.getElementById('p_lga').value },
+                { label: "SEX", val: document.getElementById('p_sex').value },
+                { label: "D.O.B.", val: document.getElementById('p_dob').value },
+                { label: "RELIGION", val: document.getElementById('p_religion').value },
+                { label: "BLOOD GROUP", val: document.getElementById('p_blood').value },
+                { label: "GENOTYPE", val: document.getElementById('p_genotype').value },
+                { label: "DEFORMITY", val: document.getElementById('p_deformity').value }
+            ];
+            let personalHTML = '';
+            personalFields.forEach(f => {
+                personalHTML += `<div><span class="font-bold text-slate-900">${f.label}:</span></div><div><span class="text-slate-700">${f.val}</span></div>`;
+            });
+            document.getElementById('prev-personal').innerHTML = personalHTML;
+
+            // Languages
+            const langVal = document.getElementById('languages').value;
+            let langHTML = '';
+            langVal.split(',').forEach(l => {
+                let parts = l.split('-');
+                if(parts.length === 2) {
+                    langHTML += `<div class="flex justify-between font-medium"><span>${parts[0].trim()}</span><span>${parts[1].trim()}</span></div>`;
+                } else if(parts.length === 1) {
+                    langHTML += `<div class="flex justify-between font-medium"><span>${parts[0].trim()}</span></div>`;
+                }
+            });
+            document.getElementById('prev-languages').innerHTML = langHTML;
+
+            // Hobbies
+            document.getElementById('prev-hobbies').innerText = document.getElementById('hobbies').value;
+        }
+
+        function loadDemoData() {
+            document.getElementById('fullName').value = "MATTHEW LILIAN";
+            document.getElementById('email').value = "lilianmatthew104@gmail.com";
+            document.getElementById('phone').value = "+1 (820) 380-0691";
+            document.getElementById('address').value = "55 sycamore ST Massachusetts, Brockton, 02301, US";
+            document.getElementById('summary').value = "Motivated and detail-oriented professional with a National Diploma in Business Administration and certified computer skills. Proven experience in sales, customer service, and teaching, with a strong track record in communication, inventory management, and customer relationship building. Passionate about contributing to organizational success through team collaboration and efficient service delivery.";
+            document.getElementById('skillsInput').value = "Customer Service & Relationship Management, Sales & Inventory Management, Contract Negotiation, Microsoft Word & Excel, Corel DRAW, Public Speaking, Administrative Support, Communication & Teamwork";
+            updatePreview();
+        }
+
+        // Export as PDF
+        function downloadPDF() {
+            const element = document.getElementById('printable-cv');
+            const opt = {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                windowWidth: 800
+            };
+            html2canvas(element, opt).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgWidth = 210;
+                const pageHeight = 295;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                pdf.save(`${document.getElementById('fullName').value.replace(/\s+/g, '_')}_CV_PrintKay.pdf`);
+            });
+        }
+
+        // Export as JPEG
+        function downloadImage() {
+            const element = document.getElementById('printable-cv');
+            html2canvas(element, { scale: 2, useCORS: true }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `${document.getElementById('fullName').value.replace(/\s+/g, '_')}_CV_PrintKay.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.95);
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
